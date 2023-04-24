@@ -12,6 +12,7 @@ public class DesktopLauncher {
 		config.setWindowedMode(800, 480);
 		config.useVsync(true);
 		config.setForegroundFPS(60);
+		//CommonWebSockets.initiate();
 		new Lwjgl3Application(new AnimationGame(), config);
 	}
 }

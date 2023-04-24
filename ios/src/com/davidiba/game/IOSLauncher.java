@@ -11,6 +11,7 @@ public class IOSLauncher extends IOSApplication.Delegate {
     @Override
     protected IOSApplication createApplication() {
         IOSApplicationConfiguration config = new IOSApplicationConfiguration();
+        //CommonWebSockets.initiate();
         return new IOSApplication(new AnimationGame(), config);
     }
 

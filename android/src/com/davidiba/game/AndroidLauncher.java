@@ -13,6 +13,7 @@ public class AndroidLauncher extends AndroidApplication {
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		config.useAccelerometer = false;
 		config.useCompass = false;
+		//CommonWebSockets.initiate();
 		initialize(new AnimationGame(), config);
 	}
 }
