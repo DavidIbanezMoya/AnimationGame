@@ -1,5 +1,6 @@
 package com.davidiba.game;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -11,6 +12,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.github.czyzby.websocket.WebSocket;
+import com.github.czyzby.websocket.WebSocketListener;
+import com.github.czyzby.websocket.WebSockets;
 
 public class AnimationGame extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -25,15 +29,19 @@ public class AnimationGame extends ApplicationAdapter {
 	TextureRegion rightPoke[] = new TextureRegion[4];
 	TextureRegion downPoke[] = new TextureRegion[4];
 	private static OrthographicCamera camera;
-
+	WebSocket socket;
+	String address = "localhost";
+	int port = 8888;
 	Animation<TextureRegion> gold;
 	Animation<TextureRegion> typhlosionRegion;
 	Float stateTime = 0.0f;
+	Float lastSend = 0.0f;
 	public Rectangle player,pokemon;
 	String direction = "",currentDirection = direction;
 
 	Rectangle upPad, downPad, leftPad, rightPad;
 	final int IDLE=0, UP=1, DOWN=2, LEFT=3, RIGHT=4;
+
 
 //...
 
@@ -116,7 +124,14 @@ public class AnimationGame extends ApplicationAdapter {
 		downPad = new Rectangle(0, 0, 800, 400/3);
 		leftPad = new Rectangle(0, 0, 800/3, 400);
 		rightPad = new Rectangle(800*2/3, 0, 800/3, 400);
-
+		if( Gdx.app.getType()== Application.ApplicationType.Android )
+			// en Android el host és accessible per 10.0.2.2
+			address = "10.0.2.2";
+		socket = WebSockets.newSocket(WebSockets.toWebSocketUrl(address, port));
+		socket.setSendGracefully(false);
+		socket.addListener((WebSocketListener) new MyWSListener());
+		socket.connect();
+		socket.send("Enviar dades");
 	}
 
 	@Override
@@ -164,7 +179,6 @@ public class AnimationGame extends ApplicationAdapter {
 		TextureRegion framePoke = typhlosionRegion.getKeyFrame(stateTime,true);
 
 
-
 		batch.begin();
 
 		//Calcular la direccio
@@ -175,8 +189,13 @@ public class AnimationGame extends ApplicationAdapter {
 				frame.getRegionWidth(),frame.getRegionHeight(),1,1,0);
 		batch.draw(framePoke,pokemon.x,pokemon.y,0,0, framePoke.getRegionWidth(),framePoke.getRegionHeight(),1,1,0);
 		batch.end();
+
+		if( stateTime-lastSend > 1.0f ) {
+			lastSend = stateTime;
+			socket.send(direction);
+		}
 	}
-	
+
 	@Override
 	public void dispose () {
 		background.dispose();
@@ -185,8 +204,8 @@ public class AnimationGame extends ApplicationAdapter {
 		typhlosion.dispose();
 	}
 
-	//todo Revisar el funcionamiento del metodo
 	public void walkDirection(String direction) {
+
 
 		if (direction.equals("right")) {
 			gold = new Animation<TextureRegion>(0.25f,right);
@@ -266,5 +285,38 @@ public class AnimationGame extends ApplicationAdapter {
 			}
 		//Revisar per el Key input
 		return currentDirection;
+	}
+
+	class MyWSListener implements WebSocketListener {
+
+		@Override
+		public boolean onOpen(WebSocket webSocket) {
+			System.out.println("Opening...");
+			return false;
+		}
+
+		@Override
+		public boolean onClose(WebSocket webSocket, int closeCode, String reason) {
+			System.out.println("Closing...");
+			return false;
+		}
+
+		@Override
+		public boolean onMessage(WebSocket webSocket, String packet) {
+			System.out.println("Message:");
+			return false;
+		}
+
+		@Override
+		public boolean onMessage(WebSocket webSocket, byte[] packet) {
+			System.out.println("Message:");
+			return false;
+		}
+
+		@Override
+		public boolean onError(WebSocket webSocket, Throwable error) {
+			System.out.println("ERROR:"+error.toString());
+			return false;
+		}
 	}
 }

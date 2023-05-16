@@ -3,6 +3,7 @@ package com.davidiba.game;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.davidiba.game.AnimationGame;
+import com.github.czyzby.websocket.CommonWebSockets;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
@@ -12,7 +13,7 @@ public class DesktopLauncher {
 		config.setWindowedMode(800, 480);
 		config.useVsync(true);
 		config.setForegroundFPS(60);
-		//CommonWebSockets.initiate();
+		CommonWebSockets.initiate();
 		new Lwjgl3Application(new AnimationGame(), config);
 	}
 }
